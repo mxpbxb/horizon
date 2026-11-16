@@ -3556,9 +3556,12 @@ fn launcher_asset_running_from(appimage: bool) -> Option<&'static str> {
     }
 }
 
-/// Development builds and `HORIZON_LAUNCHER_NO_SELF_UPDATE` never replace themselves.
+/// Development builds, `HORIZON_LAUNCHER_NO_SELF_UPDATE` and a launcher with the server channel
+/// turned off (`Settings::server_sync_off`) never replace themselves.
 pub fn self_update_allowed() -> bool {
-    !cfg!(debug_assertions) && std::env::var_os("HORIZON_LAUNCHER_NO_SELF_UPDATE").is_none()
+    !cfg!(debug_assertions)
+        && std::env::var_os("HORIZON_LAUNCHER_NO_SELF_UPDATE").is_none()
+        && !Settings::load().server_sync_off
 }
 
 /// The version in `horizon-launcher --version`'s output (`horizon-launcher 0.1.5`).
@@ -4532,6 +4535,12 @@ pub struct Settings {
     /// comes from the player's own install. Off by default, and absent from the file while off.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub dev_offline: bool,
+    /// The player turned the server channel off (`settings server-sync off`): no instance follows
+    /// the dedicated server's pinned packages (`server_sync::disabled`), so mods being worked on
+    /// stay as they are, and the launcher doesn't replace itself (an update would bring the
+    /// channel back). Off by default, and absent from the file while off.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub server_sync_off: bool,
 }
 
 impl Settings {

@@ -1016,7 +1016,7 @@ pub fn command() -> clap::Command {
 pub const AI_COMMANDS: [&str; 2] = ["mcp", "agent-config"];
 
 /// The keys `settings` sets.
-const SETTING_KEYS: [&str; 15] = [
+const SETTING_KEYS: [&str; 16] = [
     "selected-version",
     "minecraft-dir",
     "server-dir",
@@ -1032,6 +1032,7 @@ const SETTING_KEYS: [&str; 15] = [
     "background",
     "native-profile",
     "native-cache-gib",
+    "server-sync",
 ];
 
 fn on_off(value: &str) -> Result<bool, String> {
@@ -1062,6 +1063,7 @@ fn set_setting(s: &mut backend::Settings, key: &str, value: &str) -> Result<(), 
             }
         }
         "opening-animation" => s.skip_opening = !on_off(value)?,
+        "server-sync" => s.server_sync_off = !on_off(value)?,
         "game-architecture" => {
             let choice = backend::GameArchitecture::parse(value).ok_or_else(|| {
                 tr("Say auto, x64 or arm64 for the game architecture.").to_string()
@@ -1156,6 +1158,7 @@ fn settings_json(s: &backend::Settings) -> serde_json::Value {
         "prune_old_versions": s.auto_prune(),
         "keep_versions": s.keep_newest(),
         "opening_animation": !s.skip_opening,
+        "server_sync": !s.server_sync_off,
         "game_args": s.game_args,
         "proxy": s.proxy,
         "desktop_entry": s.desktop_entry.unwrap_or(true),
