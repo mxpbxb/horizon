@@ -173,22 +173,41 @@ fn read_record(home: &Path) -> Option<Manifest> {
     m.validate().ok()?;
     Some(m)
 }
+/// The player's `server-sync off` (`backend::Settings::server_sync_off`): nothing follows the
+/// channel, nothing is Required. Read from disk at most every two seconds, as the window asks
+/// every frame.
+pub fn disabled() -> bool {
+    use std::time::{Duration, Instant};
+    static CACHE: Mutex<Option<(Instant, bool)>> = Mutex::new(None);
+    let mut cache = CACHE.lock().unwrap_or_else(|e| e.into_inner());
+    match *cache {
+        Some((at, off)) if at.elapsed() < Duration::from_secs(2) => off,
+        _ => {
+            let off = backend::Settings::load().server_sync_off;
+            *cache = Some((Instant::now(), off));
+            off
+        }
+    }
+}
 pub fn required(home: &Path, mod_id: &str) -> bool {
-    policy(home).is_some_and(|m| {
+    !disabled()
+        && policy(home).is_some_and(|m| {
         m.packages
             .iter()
             .any(|p| p.kind != Kind::Runtime && p.id == mod_id && p.required)
     })
 }
 pub fn managed(home: &Path, mod_id: &str) -> bool {
-    policy(home).is_some_and(|m| {
+    !disabled()
+        && policy(home).is_some_and(|m| {
         m.packages
             .iter()
             .any(|p| p.kind != Kind::Runtime && p.id == mod_id)
     })
 }
 pub fn manages_instance(i: &instances::Instance) -> bool {
-    i.java.is_none() && matches!(i.kind, instances::Kind::Default | instances::Kind::Own)
+    !disabled()
+        && i.java.is_none() && matches!(i.kind, instances::Kind::Default | instances::Kind::Own)
 }
 fn fetch_manifest() -> Result<Manifest, String> {
     let now = std::time::SystemTime::now()
