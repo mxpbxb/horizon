@@ -868,7 +868,7 @@ enum Cmd {
     /// shows Horizon's landscape), native-cache-gib N (combined native compilation cache limit
     /// in GiB, default 30; 0 disables automatic cleanup), native-profile performance|dev|release (the profile native
     /// mods build with: performance is incremental, dev rebuilds a mod quickest for a slow game,
-    /// release is slowest to build and slightly faster to play)
+    /// release is slowest to build and slightly faster to play), server-sync on|off (whether instances follow the dedicated server's pinned mods; off keeps mods being worked on and stops the launcher updating itself)
     Settings {
         #[arg(value_parser = SETTING_KEYS)]
         key: Option<String>,
