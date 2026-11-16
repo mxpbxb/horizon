@@ -1,0 +1,37 @@
+name: launcher-nosync-windows
+# This branch only: the Windows x64 launcher with the server-sync setting, after the library's and
+# binary's unit tests. launcher.yml's tests/ integration tests are stale at launcher@0.3.5.
+on:
+  push:
+    branches: [launcher-server-sync-switch]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: launcher
+        shell: bash
+    env:
+      HORIZON_TELEMETRY_URL: "off"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: launcher
+          shared-key: launcher-windows
+      - run: cargo test --release --locked --lib --bins
+      - run: cargo build --release --locked
+      - run: ./target/release/horizon-launcher.exe --version
+      - uses: actions/upload-artifact@v7
+        with:
+          name: horizon-launcher-nosync-windows-x64
+          path: launcher/target/release/horizon-launcher.exe
+          retention-days: 7
