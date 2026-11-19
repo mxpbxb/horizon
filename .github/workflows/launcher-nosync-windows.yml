@@ -21,8 +21,8 @@ jobs:
       # As launcher.yml and fork-friends-release.yml build in: Horizon's own Azure app (public,
       # docs/microsoft-account.md) and the release this branch is based on.
       HORIZON_MSA_CLIENT_ID: 331e08f8-172d-43b9-835a-3108c2fcdbf3
-      HORIZON_LAUNCHER_VERSION: 0.3.5
-      HORIZON_LAUNCHER_TAG: launcher@0.3.5
+      HORIZON_LAUNCHER_VERSION: 0.3.6
+      HORIZON_LAUNCHER_TAG: launcher@0.3.6
     steps:
       - uses: actions/checkout@v7
         with:

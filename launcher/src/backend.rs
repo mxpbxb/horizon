@@ -3556,12 +3556,11 @@ fn launcher_asset_running_from(appimage: bool) -> Option<&'static str> {
     }
 }
 
-/// Development builds, `HORIZON_LAUNCHER_NO_SELF_UPDATE` and a launcher with the server channel
-/// turned off (`Settings::server_sync_off`) never replace themselves.
+/// This build never replaces itself: an update is the official launcher, which has no
+/// `server-sync off` and would put the server's mods back. Its patch is rebased onto each new
+/// launcher release instead.
 pub fn self_update_allowed() -> bool {
-    !cfg!(debug_assertions)
-        && std::env::var_os("HORIZON_LAUNCHER_NO_SELF_UPDATE").is_none()
-        && !Settings::load().server_sync_off
+    false
 }
 
 /// The version in `horizon-launcher --version`'s output (`horizon-launcher 0.1.5`).
